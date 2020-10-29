@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+  <title>BlackJack</title>
+
+  <style>
+    body {
+      background-color: green;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-size: cover;
+      background-repeat: repeat;
+    }
+
+    .row {
+      width: 100%;
+      margin-top: 10%;
+
+    }
+
+    .col-md-4 {
+      margin-top: 10%;
+      border: 1px solid green;
+    }
+
+    .cardImg {
+      width: 30%;
+      height: 50%;
+      margin-right: 1%;
+      margin-top: 1.5%
+    }
+
+    .playercard {
+      margin-left: -2%;
+
+    }
+
+    .dealercard {
+      padding: 5%;
+      /* margin-right: 4%; */
+
+    }
+
+    #btnD {
+      background-color: #800b17;
+      margin-top: 7%;
+      width: 20%;
+      height: 40%;
+      margin-left: 6%;
+    }
+  </style>
+  <script type="text/javascript">
+    var suits = ["Club", "Heart", "Spade", "Diamond"];
+    var types = ["A", 2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K"];
+    var cards = [];
+    var img;
+    var pp = 0;
+    var dp = 0;
+
+    function makeDeck() {
+      for (var i = 0; i < suits.length; i++) {
+        for (var j = 0; j < types.length; j++) {
+          var val = types[j];
+          if (types[j] == "K" || types[j] == "Q" || types[j] == "J") {
+            val = 10;
+          }
+          if (types[j] == "A") {
+            val = 11;
+          }
+          cards.push({ type: types[j], suit: suits[i], value: val });
+        }
+      }
+    }
+
+    function showPlayerCard() {
+      game();
+      var elem = document.createElement("img");
+      //import card here 
+
+      elem.setAttribute("src", "cards/" + img.toLowerCase() + ".png");
+      elem.setAttribute("class", "cardImg");
+      document.getElementsByClassName("showCard")[0].appendChild(elem);
+      // updatePoints();
+      document.getElementById("pp").innerHTML = pp;
+      document.getElementById("p1").innerHTML =
+        "You have " + "<strong>" + pp + "</strong>" + " points";
+    }
+
+    function showDealerCard() {
+      game1();
+      var elem = document.createElement("img");
+      //import card here
+      
+      elem.setAttribute("src", "cards/" + img.toLowerCase() + ".png");
+      elem.setAttribute("class", "cardImg");
+      document.getElementsByClassName("dealerImg")[0].appendChild(elem);
+      var elem = document.createElement("img");
+      elem.setAttribute("src", "cards/back.png");
+      elem.setAttribute("class", "cardImg");
+      elem.setAttribute("id", "blankcard");
+      document.getElementsByClassName("dealerImg")[0].appendChild(elem);
+      document.getElementById("dp").innerHTML = dp;
+      document.getElementById("d1").innerHTML =
+        "Dealer has " + "<strong>" + dp + "</strong>" + " points";
+    }
+    //card for player and points counted
+    function game() {
+      var card1 = cards[Math.floor(Math.random() * cards.length)];
+      console.log(card1.type);
+      img = card1.type + card1.suit.charAt(0);
+      pp = pp + card1.value;
+      var index = cards.indexOf(card1);
+      if (index !== -1) cards.splice(index, 1);
+    }
+    //Card for dealer and point is stored and wait on player
+    function game1() {
+      var card2 = cards[Math.floor(Math.random() * cards.length)];
+      img = card2.type + card2.suit.charAt(0);
+      dp = dp + card2.value;
+      var index = cards.indexOf(card2);
+      if (index !== -1) cards.splice(index, 1);
+    }
+    //shuffle card
+    function shuffle() {
+      for (var i = 0; i < 100; i++) {
+        var location1 = Math.floor(Math.random() * cards.length);
+        var location2 = Math.floor(Math.random() * cards.length);
+        var tmp = cards[location1];
+        cards[location1] = cards[location2];
+        cards[location2] = tmp;
+      }
+    }
+
+    window.onload = function start() {
+      makeDeck();
+      shuffle();
+      for (var i = 0; i <= 1; i++) {
+        showPlayerCard();
+      }
+      showDealerCard();
+      console.log(pp);
+      if (pp == 21) {
+        document.getElementById("decision").innerHTML = "BlackJack";
+        dispalyBlockCard();
+      }
+    };
+    function addCard() {
+      showPlayerCard();
+      if (pp > 21) {
+        Decider();
+      } else if (pp == 21) {
+        Decider();
+      }
+    }
+
+    function stand() {
+      var temp = document.getElementById("stand");
+      temp.disabled = true;
+      document.getElementById("hit").disabled = "true";
+      removeBlank();
+      while (dp <= 17) {
+        showDealerCard();
+        removeBlank();
+      }
+      Decider();
+    }
+    //remove Blank card from dealers
+    function removeBlank() {
+      var elem = document.getElementById("blankcard");
+      elem.parentNode.removeChild(elem);
+    }
+
+    function Decider() {
+      var elem = document.getElementById("decision");
+      if (pp < 21 && pp > dp) {
+        elem.innerHTML = "You win";
+      } else if (pp == dp) {
+        elem.innerHTML = "Draw";
+      } else if (dp > 21) {
+        elem.innerHTML = "You win";
+      } else if (pp > 21) {
+        elem.innerHTML = "Bust";
+      } else if (pp < dp) {
+        elem.innerHTML = "You lose";
+      } else if (pp == 21 && dp < pp) {
+        elem.innerHTML = "BlackJack";
+      }
+      dispalyBlockCard();
+    }
+    function dispalyBlockCard() {
+      var x = document.getElementsByClassName("modal")[0];
+      x.style.display = "block";
+      x.style.top = "20%";
+    }
+
+    function restart() {
+      window.location.reload();
+    }
+
+    console.log(cards);
+  </script>
+</head>
+
+<body>
+  <div class="text-center">
+    <div class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" style="color: rgb(179, 0, 0)">
+              <b>Result:</b><strong id="decision"></strong>
+            </h5>
+          </div>
+          <div class="modal-body">
+            <p id="p1"></p>
+            <p id="d1"></p>
+          </div>
+          <div class="text-center" style="border-top: 1px solid grey; padding: 2%">
+            <button type="button" class="btn btn-primary btn-sm" onclick="restart()">
+              Restart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card playercard" style="width: 35%; float: left">
+        <div class="card-body text-center">
+          <h5 class="card-title" style="text-shadow: 2px 2px 5px #006600">
+            Player
+          </h5>
+          <h6 class="card-subtitle mb-2 text-muted">
+            Total points: <strong id="pp"></strong>
+          </h6>
+          <button class="btn btn-warning" id="hit" style="margin-bottom: 2%; width: 100%; background-color: red"
+            onclick="addCard()">
+            Hit
+          </button>
+          <button class="btn btn-warning" id="stand" style="width: 100%" onclick="stand()">
+            Stand
+          </button>
+        </div>
+      </div>
+      <div class="showCard text-center" style="width: 65%; float: right"></div>
+    </div>
+    <div class="col-md-6">
+      <div class="showCard dealerImg" style="width: 65%; float: left"></div>
+      <div class="card dealercard text-center" style="width: 35%; float: right">
+        <div class="card-body">
+          <h5 class="card-title" style="text-shadow: 2px 2px 5px #006600">
+            Dealer
+          </h5>
+          <h6 class="card-subtitle mb-2 text-muted">
+            Total Points: <strong id="dp"></strong>
+          </h6>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row" style="padding-bottom:0%">
+    <div class="col-md-8 offset-md-2 text-center">
+      <button type="button" id="btnD" class="btn btn-info" onclick="restart()">
+        Restart
+      </button>
+    </div>
+  </div>
+
+
+</body>
+
+</html>
